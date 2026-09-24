@@ -15,6 +15,7 @@
       --border: #e2e8f0;
       --success: #10b981;
       --accent: #f59e0b;
+      --danger: #ef4444;
     }
     * {
       box-sizing: border-box;
@@ -193,6 +194,102 @@
       margin-top: 20px;
       margin-bottom: 12px;
     }
+
+    /* クイズ用モーダルスタイル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .quiz-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .quiz-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 14px;
+    }
+    .quiz-question {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      text-align: left;
+      line-height: 1.6;
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .quiz-btn {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .quiz-btn:active {
+      transform: scale(0.98);
+      background: #f1f5f9;
+    }
+    .quiz-feedback {
+      font-size: 0.85rem;
+      font-weight: 700;
+      min-height: 24px;
+      margin-bottom: 8px;
+    }
+    .quiz-feedback.wrong {
+      color: var(--danger);
+    }
+    .quiz-feedback.correct {
+      color: var(--success);
+    }
+    .btn-modal-close {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -228,14 +325,79 @@
   <button class="btn-reset" onclick="resetProgress()">データを初期化（管理者用）</button>
 </div>
 
+<!-- クイズ用モーダル -->
+<div id="quiz-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="quiz-badge" id="modal-badge">スポットクイズ</div>
+    <h3 class="quiz-title" id="modal-title">スポット名</h3>
+    <div class="quiz-question" id="modal-question">質問文</div>
+    
+    <div class="quiz-options" id="modal-options"></div>
+    <div class="quiz-feedback" id="modal-feedback"></div>
+    <div id="modal-action-area" style="display: none;">
+      <button class="btn-modal-close" onclick="closeModal()">スタンプを確認する</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // スポットの管理
+  // スポットと対応する3択クイズの定義
   const SPOTS = [
-    { id: 'spot1', name: '受付・総合案内', emoji: '🚩' },
-    { id: 'spot2', name: 'メインステージ', emoji: '🎤' },
-    { id: 'spot3', name: 'ワークショップ', emoji: '🛠️' },
-    { id: 'spot4', name: 'フード＆カフェ', emoji: '🥪' },
-    { id: 'spot5', name: '展示ブース', emoji: '🎨' }
+    {
+      id: 'spot1',
+      name: '受付・総合案内',
+      emoji: '🚩',
+      quiz: {
+        question: '朝は4本足、昼は2本足、夜は3本足で歩くものは何？',
+        options: ['人間', 'ネコ', 'ロボット'],
+        answer: 0,
+        explanation: '赤ちゃんのハイハイ（4本）、大人（2本）、杖をつくお年寄り（3本）のことです！'
+      }
+    },
+    {
+      id: 'spot2',
+      name: 'メインステージ',
+      emoji: '🎤',
+      quiz: {
+        question: '日本で一番高い山は「富士山」ですが、世界で一番高い山は何山？',
+        options: ['キリマンジャロ', 'マッターホルン', 'エベレスト'],
+        answer: 2,
+        explanation: '標高8,848mの世界最高峰「エベレスト（チョモランマ）」です！'
+      }
+    },
+    {
+      id: 'spot3',
+      name: 'ワークショップ',
+      emoji: '🛠️',
+      quiz: {
+        question: 'カラスが3羽、電線にとまっています。鉄砲で1羽撃ったら、電線には何羽残る？',
+        options: ['2羽', '0羽', '1羽'],
+        answer: 1,
+        explanation: '鉄砲の大きな音に驚いて、残りの2羽も逃げてしまうからです！'
+      }
+    },
+    {
+      id: 'spot4',
+      name: 'フード＆カフェ',
+      emoji: '🥪',
+      quiz: {
+        question: '上を向いているときは動かなくて、下を向くとサラサラ動き出す時計は何？',
+        options: ['砂時計', 'デジタル時計', '日時計'],
+        answer: 0,
+        explanation: 'ひっくり返すとサラサラと砂が落ちて時間を測る「砂時計」です！'
+      }
+    },
+    {
+      id: 'spot5',
+      name: '展示ブース',
+      emoji: '🎨',
+      quiz: {
+        question: '「1本」のときは長くて、「2本」になると切るものに変身する文房具は何？',
+        options: ['定規', 'はさみ', 'ホッチキス'],
+        answer: 1,
+        explanation: '1本だとただの刃ですが、2本合わさるとチョキチョキ切れる「はさみ」です！'
+      }
+    }
   ];
 
   const STORAGE_KEY = 'tunafes_2026_stamps';
@@ -275,7 +437,7 @@
 
     const banner = document.getElementById('alert-banner');
     if (justAddedName) {
-      banner.textContent = `✨ 「${justAddedName}」のスタンプを押しました！`;
+      banner.textContent = `✨ 「${justAddedName}」のスタンプを獲得しました！`;
       banner.style.display = 'block';
     } else {
       banner.style.display = 'none';
@@ -289,6 +451,70 @@
     }
   }
 
+  // クイズモーダルの表示
+  function openQuizModal(spot) {
+    const modal = document.getElementById('quiz-modal');
+    document.getElementById('modal-badge').textContent = `🎯 ${spot.name}のクイズ`;
+    document.getElementById('modal-title').textContent = '正解してスタンプをGET！';
+    document.getElementById('modal-question').textContent = spot.quiz.question;
+    
+    const feedback = document.getElementById('modal-feedback');
+    feedback.textContent = '';
+    feedback.className = 'quiz-feedback';
+    document.getElementById('modal-action-area').style.display = 'none';
+
+    const optionsContainer = document.getElementById('modal-options');
+    optionsContainer.innerHTML = '';
+    optionsContainer.style.display = 'flex';
+
+    spot.quiz.options.forEach((optText, index) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-btn';
+      btn.textContent = `${index + 1}. ${optText}`;
+      btn.onclick = () => answerQuiz(spot, index);
+      optionsContainer.appendChild(btn);
+    });
+
+    modal.style.display = 'flex';
+  }
+
+  // クイズ回答処理
+  function answerQuiz(spot, selectedIndex) {
+    const feedback = document.getElementById('modal-feedback');
+    const optionsContainer = document.getElementById('modal-options');
+    const actionArea = document.getElementById('modal-action-area');
+
+    if (selectedIndex === spot.quiz.answer) {
+      // 正解処理
+      const collected = getCollectedStamps();
+      if (!collected.includes(spot.id)) {
+        collected.push(spot.id);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(collected));
+        } catch (e) {
+          alert('保存に失敗しました。');
+        }
+      }
+
+      feedback.className = 'quiz-feedback correct';
+      feedback.innerHTML = `🎉 正解！<br><span style="font-weight:normal; font-size:0.8rem; color:#475569;">${spot.quiz.explanation}</span>`;
+      
+      // 選択肢を非表示にして確認ボタンを表示
+      optionsContainer.style.display = 'none';
+      actionArea.style.display = 'block';
+      render(spot.name);
+    } else {
+      // 不正解処理
+      feedback.className = 'quiz-feedback wrong';
+      feedback.textContent = '❌ ざんねん！もう一度選んでね。';
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('quiz-modal').style.display = 'none';
+  }
+
+  // URLパラメータチェック
   function checkUrlParam() {
     const params = new URLSearchParams(window.location.search);
     const spotId = params.get('spot');
@@ -305,28 +531,23 @@
     }
 
     const collected = getCollectedStamps();
-    let justAdded = null;
-
-    if (!collected.includes(spotId)) {
-      collected.push(spotId);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(collected));
-        justAdded = targetSpot.name;
-      } catch (e) {
-        alert('ブラウザの設定により獲得状況を保存できませんでした。');
-      }
-    }
-
+    
+    // URLのパラメータを除去（再読み込み対策）
     window.history.replaceState({}, document.title, window.location.pathname);
-    render(justAdded);
+    render();
+
+    // 既に獲得済みならその旨を通知、未獲得ならクイズを開く
+    if (collected.includes(spotId)) {
+      alert(`「${targetSpot.name}」のスタンプはすでに獲得しています！`);
+    } else {
+      openQuizModal(targetSpot);
+    }
   }
 
-  // 管理者用初期化処理（パスワード認証）
+  // 管理者初期化
   function resetProgress() {
     const pass = prompt('管理者パスワードを入力してください:');
-    if (pass === null) {
-      return; // キャンセル時
-    }
+    if (pass === null) return;
 
     if (pass === ADMIN_PASSWORD) {
       localStorage.removeItem(STORAGE_KEY);

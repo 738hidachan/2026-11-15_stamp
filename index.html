@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>つなフェス2026 スタンプラリー</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --accent: #f59e0b;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 24px 16px 48px;
+      display: flex;
+      justify-content: center;
+      line-height: 1.5;
+    }
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .event-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .progress-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+    .progress-count {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .progress-bar-bg {
+      background: #e2e8f0;
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #3b82f6, var(--primary));
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .banner {
+      display: none;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+      margin-bottom: 28px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px 12px;
+      text-align: center;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
+      border: 2px dashed #cbd5e1;
+      transition: all 0.25s ease;
+    }
+    .card.stamped {
+      border: 2px solid var(--primary);
+      background: #faf5ff;
+    }
+    .stamp-mark {
+      font-size: 2.8rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      filter: grayscale(100%);
+      opacity: 0.25;
+      transition: all 0.3s ease;
+    }
+    .card.stamped .stamp-mark {
+      filter: none;
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .status-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: var(--text-sub);
+      margin-top: 6px;
+    }
+    .card.stamped .status-badge {
+      background: #dbeafe;
+      color: var(--primary);
+    }
+    .complete-box {
+      display: none;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #ffffff;
+      padding: 24px 20px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 10px 20px -3px rgba(37, 99, 235, 0.3);
+      margin-top: 16px;
+      margin-bottom: 24px;
+    }
+    .complete-box h2 {
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+    .complete-box p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+    .btn-reset {
+      display: block;
+      margin: 0 auto;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .notice {
+      font-size: 0.72rem;
+      color: var(--text-sub);
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="event-badge">つなフェス2026</div>
+    <h1>スタンプラリー</h1>
+    
+    <div class="progress-card">
+      <div class="progress-header">
+        <span>獲得状況</span>
+        <span class="progress-count" id="progress-text">0 / 5</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+  </header>
+
+  <div id="alert-banner" class="banner"></div>
+
+  <!-- 全スタンプ獲得時の案内 -->
+  <div id="complete-box" class="complete-box">
+    <h2>🎉 コンプリート達成！ 🎉</h2>
+    <p>全スポットのスタンプが揃いました！<br>この画面を受付窓口に提示して、記念品をお受け取りください。</p>
+  </div>
+
+  <!-- スタンプ一覧 -->
+  <div class="grid" id="stamp-grid"></div>
+
+  <p class="notice">※SafariやChromeなどの標準ブラウザでご利用ください（プライベートモード不可）。</p>
+  <button class="btn-reset" onclick="resetProgress()">データを初期化（管理者用）</button>
+</div>
+
+<script>
+  // スポットの管理
+  const SPOTS = [
+    { id: 'spot1', name: '受付・総合案内', emoji: '🚩' },
+    { id: 'spot2', name: 'メインステージ', emoji: '🎤' },
+    { id: 'spot3', name: 'ワークショップ', emoji: '🛠️' },
+    { id: 'spot4', name: 'フード＆カフェ', emoji: '🥪' },
+    { id: 'spot5', name: '展示ブース', emoji: '🎨' }
+  ];
+
+  const STORAGE_KEY = 'tunafes_2026_stamps';
+  const ADMIN_PASSWORD = '1115';
+
+  function getCollectedStamps() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('localStorage access denied:', e);
+      return [];
+    }
+  }
+
+  function render(justAddedName = null) {
+    const collected = getCollectedStamps();
+    const grid = document.getElementById('stamp-grid');
+    grid.innerHTML = '';
+
+    SPOTS.forEach(spot => {
+      const isStamped = collected.includes(spot.id);
+      const card = document.createElement('div');
+      card.className = `card ${isStamped ? 'stamped' : ''}`;
+      card.innerHTML = `
+        <div class="stamp-mark">${isStamped ? spot.emoji : '⚪'}</div>
+        <div class="card-title">${spot.name}</div>
+        <span class="status-badge">${isStamped ? '獲得済み' : '未獲得'}</span>
+      `;
+      grid.appendChild(card);
+    });
+
+    const count = collected.length;
+    const total = SPOTS.length;
+    document.getElementById('progress-text').textContent = `${count} / ${total}`;
+    document.getElementById('progress-bar').style.width = `${(count / total) * 100}%`;
+
+    const banner = document.getElementById('alert-banner');
+    if (justAddedName) {
+      banner.textContent = `✨ 「${justAddedName}」のスタンプを押しました！`;
+      banner.style.display = 'block';
+    } else {
+      banner.style.display = 'none';
+    }
+
+    const completeBox = document.getElementById('complete-box');
+    if (count === total && total > 0) {
+      completeBox.style.display = 'block';
+    } else {
+      completeBox.style.display = 'none';
+    }
+  }
+
+  function checkUrlParam() {
+    const params = new URLSearchParams(window.location.search);
+    const spotId = params.get('spot');
+
+    if (!spotId) {
+      render();
+      return;
+    }
+
+    const targetSpot = SPOTS.find(s => s.id === spotId);
+    if (!targetSpot) {
+      render();
+      return;
+    }
+
+    const collected = getCollectedStamps();
+    let justAdded = null;
+
+    if (!collected.includes(spotId)) {
+      collected.push(spotId);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collected));
+        justAdded = targetSpot.name;
+      } catch (e) {
+        alert('ブラウザの設定により獲得状況を保存できませんでした。');
+      }
+    }
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+    render(justAdded);
+  }
+
+  // 管理者用初期化処理（パスワード認証）
+  function resetProgress() {
+    const pass = prompt('管理者パスワードを入力してください:');
+    if (pass === null) {
+      return; // キャンセル時
+    }
+
+    if (pass === ADMIN_PASSWORD) {
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+      alert('スタンプ獲得データを初期化しました。');
+    } else {
+      alert('パスワードが違います。');
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', checkUrlParam);
+</script>
+
+</body>
+</html>

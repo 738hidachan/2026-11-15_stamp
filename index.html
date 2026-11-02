@@ -242,14 +242,14 @@
 </div>
 
 <script>
-  // 各会場スポットの定義（名称に合わせた絵文字）
+  // 各会場スポットの定義（更新版）
   const SPOTS = [
-    { id: 'spot1', name: '1F ロビー', emoji: '🚪' },
+    { id: 'spot1', name: '1F ロビー', emoji: '🎷' },
     { id: 'spot2', name: '1F 桜会館', emoji: '🌸' },
     { id: 'spot3', name: '1F 希望の間', emoji: '🌟' },
-    { id: 'spot4', name: '1F 常楽の間', emoji: '🍵' },
-    { id: 'spot5', name: '2F 松山会館', emoji: '🏛️' },
-    { id: 'spot6', name: '2F 青春会館', emoji: '⚡' }
+    { id: 'spot4', name: '1F 常楽の間', emoji: '🖌️' },
+    { id: 'spot5', name: '2F 松山会館', emoji: '✏️' },
+    { id: 'spot6', name: '2F 青春会館', emoji: '☖' }
   ];
 
   const STORAGE_KEY = 'tunafes_2026_stamps';
@@ -331,12 +331,11 @@
       }
     }
 
-    // パラメータを取り除き、再読み込み時の重複獲得演出を防止
     window.history.replaceState({}, document.title, window.location.pathname);
     render(justAdded);
   }
 
-  // 管理者用初期化処理（パスワード認証）
+  // 管理者用初期化処理
   function resetProgress() {
     const pass = prompt('管理者パスワードを入力してください:');
     if (pass === null) return;
